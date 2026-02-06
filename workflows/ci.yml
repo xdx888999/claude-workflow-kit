@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate JSON
+        run: |
+          python -m json.tool settings.json >/dev/null
+
+      - name: Validate workflow YAML
+        run: |
+          ruby -e "require 'yaml'; YAML.load_file('.github/workflows/ci.yml'); puts 'yaml_ok'"
+
+      - name: Validate shell scripts
+        run: |
+          bash -n install.sh
+          bash -n uninstall.sh
+
+      - name: Dry-run installer
+        run: |
+          bash install.sh --dry-run
